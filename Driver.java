@@ -1,6 +1,6 @@
 package aoc2024;
 
-import day1.Day1;
+import aoc2024.day1.Day1;
 
 public class Driver {
     public static void main(String[] args) {
