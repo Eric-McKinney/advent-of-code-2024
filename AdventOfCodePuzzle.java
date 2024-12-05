@@ -41,6 +41,8 @@ public abstract class AdventOfCodePuzzle {
             lines.add(scanner.nextLine());
         }
 
+        scanner.close();
+
         return lines;
     }
 }
