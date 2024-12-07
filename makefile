@@ -1,8 +1,10 @@
-.PHONY: all run clean
+.PHONY: all compile run clean
 
 days=$(wildcard day*/Day*.java)
 
-all: Driver.java AdventOfCodePuzzle.java $(days)
+all: compile run
+
+compile: Driver.java AdventOfCodePuzzle.java $(days)
 	javac -d . $^
 
 run:
