@@ -16,32 +16,32 @@ public class Day3 extends AdventOfCodePuzzle {
 
         for (String line : inputLines) {
             ArrayList<String> tokens = tokenize(line);
-            ArrayList<BinaryOp> ops = parse(tokens);
+            ArrayList<MulOp> ops = parse(tokens);
             sum += sumEvalAll(ops);
         }
 
         return Integer.toString(sum);
     }
+    
+    /*
+    @Override
+    public String part2(ArrayList<String> inputLines) {
+        int sum = 0;
 
-    private abstract class BinaryOp {
-        protected int arg1, arg2;
+        for (String line : inputLines) {
+            ArrayList<String> tokens = tokenize(line);
+        }
+    }
+    */
 
-        public BinaryOp(int arg1, int arg2) {
+    private class MulOp {
+        private int arg1, arg2;
+
+        public MulOp(int arg1, int arg2) {
             this.arg1 = arg1;
             this.arg2 = arg2;
         }
 
-        public int eval() {
-            throw new UnsupportedOperationException("Unimplemented eval method");
-        }
-    }
-
-    private class MulOp extends BinaryOp {
-        public MulOp(int arg1, int arg2) {
-            super(arg1, arg2);
-        }
-
-        @Override
         public int eval() {
             return arg1 * arg2;
         }
@@ -60,8 +60,8 @@ public class Day3 extends AdventOfCodePuzzle {
         return tokens;
     }
 
-    private ArrayList<BinaryOp> parse(ArrayList<String> tokens) {
-        ArrayList<BinaryOp> ops = new ArrayList<>();
+    private ArrayList<MulOp> parse(ArrayList<String> tokens) {
+        ArrayList<MulOp> ops = new ArrayList<>();
 
         for (String token : tokens) {
             int arg1, arg2, openParenIdx, commaIdx, closeParenIdx;
@@ -83,10 +83,10 @@ public class Day3 extends AdventOfCodePuzzle {
         return ops;
     }
 
-    private int sumEvalAll(ArrayList<BinaryOp> ops) {
+    private int sumEvalAll(ArrayList<MulOp> ops) {
         int sum = 0;
 
-        for (BinaryOp op : ops) {
+        for (MulOp op : ops) {
             sum += op.eval();
         }
 
