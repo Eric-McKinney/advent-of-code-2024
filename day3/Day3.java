@@ -23,16 +23,20 @@ public class Day3 extends AdventOfCodePuzzle {
         return Integer.toString(sum);
     }
     
-    /*
     @Override
     public String part2(ArrayList<String> inputLines) {
-        int sum = 0;
+        String aggregatedLine = "";
 
         for (String line : inputLines) {
-            ArrayList<String> tokens = tokenize(line);
+            aggregatedLine += line;
         }
+
+        ArrayList<String> tokens = tokenize(aggregatedLine, true);
+        ArrayList<MulOp> ops = parse(tokens);
+        int sum = sumEvalAll(ops);
+
+        return Integer.toString(sum);
     }
-    */
 
     private class MulOp {
         private int arg1, arg2;
@@ -48,13 +52,33 @@ public class Day3 extends AdventOfCodePuzzle {
     }
 
     private ArrayList<String> tokenize(String line) {
-        ArrayList<String> tokens = new ArrayList<>();
-        Pattern op = Pattern.compile("mul\\(\\d{1,3},\\d{1,3}\\)");
-        Matcher m = op.matcher(line);
+        return tokenize(line, false);
+    }
 
-        while (m.find()) {
-            int matchLength = m.end();
-            tokens.add(m.group());
+    private ArrayList<String> tokenize(String line, boolean useEnables) {
+        ArrayList<String> tokens = new ArrayList<>();
+        Pattern mulPat = Pattern.compile("^mul\\(\\d{1,3},\\d{1,3}\\)");
+        Pattern enablePat = Pattern.compile("^do(n't)?\\(\\)");
+        int pos = 0;
+
+        while (pos < line.length()) {
+            String s = line.substring(pos);
+            Matcher mulMat = mulPat.matcher(s);
+            Matcher enableMat = enablePat.matcher(s);
+            
+            if (mulMat.find()) {
+                int matchLength = mulMat.end();
+                tokens.add(mulMat.group());
+
+                pos += matchLength;
+            } else if (useEnables && enableMat.find()) {
+                int matchLength = enableMat.end();
+                tokens.add(enableMat.group());
+
+                pos += matchLength;
+            } else {
+                pos++;
+            }
         }
 
         return tokens;
@@ -62,11 +86,12 @@ public class Day3 extends AdventOfCodePuzzle {
 
     private ArrayList<MulOp> parse(ArrayList<String> tokens) {
         ArrayList<MulOp> ops = new ArrayList<>();
+        boolean mulsEnabled = true;
 
         for (String token : tokens) {
             int arg1, arg2, openParenIdx, commaIdx, closeParenIdx;
 
-            if (token.substring(0,3).compareTo("mul") == 0) {
+            if (mulsEnabled && token.substring(0,3).compareTo("mul") == 0) {
                 openParenIdx = token.indexOf("(");
                 commaIdx = token.indexOf(",");
                 closeParenIdx = token.indexOf(")");
@@ -75,8 +100,10 @@ public class Day3 extends AdventOfCodePuzzle {
                 arg2 = Integer.decode(token.substring(commaIdx + 1, closeParenIdx));
 
                 ops.add(new MulOp(arg1, arg2));
-            } else {
-                throw new UnsupportedOperationException("Unknown operation");
+            } else if (token.compareTo("do()") == 0) {
+                mulsEnabled = true;
+            } else if (token.compareTo("don't()") == 0) {
+                mulsEnabled = false;
             }
         }
 
