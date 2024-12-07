@@ -15,28 +15,44 @@ public class Day2 extends AdventOfCodePuzzle {
         int numSafe = 0;
 
         for (String line : inputLines) {
-            List<String> row = Arrays.asList(line.split(" +"));
-            List<Integer> reports = new ArrayList<>();
-
-            for (String num : row) {
-                reports.add(Integer.decode(num));
-            }
-            
-            numSafe += isSafe(reports) ? 1 : 0;
+            ArrayList<Integer> report = parseReport(line);
+            numSafe += reportIsSafe(report) ? 1 : 0;
         }
 
         return Integer.toString(numSafe);
     }
 
-    private boolean isSafe(List<Integer> reports) {
+    @Override
+    public String part2(ArrayList<String> inputLines) {
+        int numSafe = 0;
+
+        for (String line : inputLines) {
+            ArrayList<Integer> report = parseReport(line);
+            numSafe += reportIsSafe(report, true) ? 1 : 0;
+        }
+
+        return Integer.toString(numSafe);
+    }
+
+    private ArrayList<Integer> parseReport(String line) {
+        ArrayList<Integer> report = new ArrayList<>();
+        List<String> row = Arrays.asList(line.split(" +"));
+
+        for (String num : row) {
+            report.add(Integer.decode(num));
+        }
+
+        return report;
+    }
+
+    private boolean reportIsSafe(ArrayList<Integer> report) {
         boolean prevIsDecreasing = false;
 
-        for (int i = 1; i < reports.size(); i++) {
-            int diff = reports.get(i - 1) - reports.get(i);
-            boolean isDecreasing = diff > 0;
-            
+        for (int i = 0; i < report.size() - 1; i++) {
+            int diff = report.get(i) - report.get(i + 1);
+            boolean isDecreasing = diff < 0;
 
-            if (diff == 0 || Math.abs(diff) > 3 || (i > 1 && isDecreasing != prevIsDecreasing)) {
+            if (diff == 0 || Math.abs(diff) > 3 || (i > 0 && isDecreasing != prevIsDecreasing)) {
                 return false;
             }
 
@@ -44,5 +60,23 @@ public class Day2 extends AdventOfCodePuzzle {
         }
 
         return true;
+    }
+
+    private boolean reportIsSafe(ArrayList<Integer> report, boolean tolerateOneBadLevel) {
+        if (!tolerateOneBadLevel) {
+            return reportIsSafe(report);
+        }
+
+        for (int i = 0; i < report.size(); i++) {
+            ArrayList<Integer> reportCopy = (ArrayList<Integer>) report.clone();
+
+            reportCopy.remove(i);
+            
+            if (reportIsSafe(reportCopy)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
