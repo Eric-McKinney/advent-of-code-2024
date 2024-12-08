@@ -15,7 +15,7 @@ public class Day6 extends AdventOfCodePuzzle {
 
         board.simulate();
 
-        return Integer.toString(board.getNumUniquePosnsGuardVisited());
+        return Integer.toString(board.getPosnsGuardVisited().size());
     }
 
     private class Position {
@@ -131,8 +131,8 @@ public class Day6 extends AdventOfCodePuzzle {
             return (y >= 0 && y < grid.size() && x >= 0 && x < grid.get(y).length());
         }
 
-        public int getNumUniquePosnsGuardVisited() {
-            return posnsGuardVisited.size();
+        public HashSet<Position> getPosnsGuardVisited() {
+            return posnsGuardVisited;
         }
     }
 }
