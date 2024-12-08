@@ -2,7 +2,7 @@ package aoc2024.day5;
 
 import aoc2024.AdventOfCodePuzzle;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 
 public class Day5 extends AdventOfCodePuzzle {
     public Day5() {
@@ -11,8 +11,29 @@ public class Day5 extends AdventOfCodePuzzle {
 
     @Override
     public String part1(ArrayList<String> inputLines) {
-        RuleSet rs = new RuleSet();
         int middlePageNumSum = 0;
+        HashMap<Boolean,ArrayList<ArrayList<Integer>>> followsRules = createAndApplyRuleSet(inputLines);
+
+        for (ArrayList<Integer> pageNums : followsRules.get(true)) {
+            middlePageNumSum += pageNums.get(pageNums.size() / 2);
+        }
+
+        return Integer.toString(middlePageNumSum);
+    }
+
+    @Override
+    public String part2(ArrayList<String> inputLines) {
+        int middlePageNumSum = 0;
+
+        return Integer.toString(middlePageNumSum);
+    }
+
+    private HashMap<Boolean,ArrayList<ArrayList<Integer>>> createAndApplyRuleSet(ArrayList<String> inputLines) {
+        RuleSet rs = new RuleSet();
+        HashMap<Boolean,ArrayList<ArrayList<Integer>>> followsRules = new HashMap<>();
+
+        followsRules.put(true, new ArrayList<ArrayList<Integer>>());
+        followsRules.put(false, new ArrayList<ArrayList<Integer>>());
 
         for (String line : inputLines) {
             if (line.contains("|")) {
@@ -25,13 +46,11 @@ public class Day5 extends AdventOfCodePuzzle {
                     pageNums.add(Integer.decode(num));
                 }
 
-                if (rs.followsRuleSet(pageNums)) {
-                    middlePageNumSum += pageNums.get(pageNums.size() / 2);
-                }
+                followsRules.get(rs.followsRuleSet(pageNums)).add(pageNums);
             }
         }
 
-        return Integer.toString(middlePageNumSum);
+        return followsRules;
     }
 
     private class RuleSet {
