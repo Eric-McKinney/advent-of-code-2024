@@ -3,6 +3,7 @@ package aoc2024;
 import aoc2024.day1.Day1;
 import aoc2024.day2.Day2;
 import aoc2024.day3.Day3;
+import aoc2024.day4.Day4;
 
 public class Driver {
     public static void main(String[] args) {
@@ -12,6 +13,7 @@ public class Driver {
         puzzles[0] = new Day1();
         puzzles[1] = new Day2();
         puzzles[2] = new Day3();
+        puzzles[3] = new Day4();
 
         System.out.println(separator);
         for (int i = 0; i < puzzles.length && puzzles[i] != null; i++) {
