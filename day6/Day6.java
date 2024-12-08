@@ -18,6 +18,32 @@ public class Day6 extends AdventOfCodePuzzle {
         return Integer.toString(board.getPosnsGuardVisited().size());
     }
 
+    @Override
+    public String part2(ArrayList<String> inputLines) {
+        Board board = new Board(inputLines);
+        HashSet<Position> originalVisited;
+        int numLoops = 0;
+
+        board.simulate();
+        originalVisited = board.getPosnsGuardVisited();
+        originalVisited.remove(board.getStartingPosition());
+
+        // only need to put obstruction where guard will run into it
+        for (Position p : originalVisited) {
+            board.addObstruction(p);
+            board.simulate(true);
+
+            // if guard is in bounds at end of simulation, there was loop
+            if (board.guardInBounds()) {
+                numLoops++;
+            }
+
+            board.resetSimulation();
+        }
+
+        return Integer.toString(numLoops);
+    }
+
     private class Position {
         public int x, y;
 
@@ -56,6 +82,7 @@ public class Day6 extends AdventOfCodePuzzle {
         private HashSet<Position> obstructions;
         private HashSet<Position> posnsGuardVisited;
         private Position guardPosition;
+        private Position startPosition;
         private enum Bearing {
             N,
             E,
@@ -63,12 +90,15 @@ public class Day6 extends AdventOfCodePuzzle {
             W
         }
         private Bearing guardBearing;
+        private Bearing startBearing;
+        private Position tempObstruction;
 
         public Board(ArrayList<String> inputLines) {
             this.grid = inputLines;
             this.obstructions = new HashSet<>();
             this.posnsGuardVisited = new HashSet<>();
             this.guardBearing = Bearing.N;
+            this.startBearing = Bearing.N;
 
             for (int y = 0; y < grid.size(); y++) {
                 for (int x = 0; x < grid.get(y).length(); x++) {
@@ -76,6 +106,7 @@ public class Day6 extends AdventOfCodePuzzle {
 
                     if (c == '^') {
                         this.guardPosition = new Position(x, y);
+                        this.startPosition = guardPosition;
                         posnsGuardVisited.add(guardPosition);
                     } else if (c == '#') {
                         obstructions.add(new Position(x, y));
@@ -87,6 +118,31 @@ public class Day6 extends AdventOfCodePuzzle {
         public void simulate() {
             while (guardInBounds()) {
                 tick();
+            }
+        }
+
+        public void simulate(boolean detectInfiniteLoop) {
+            boolean probablyLooping = false;
+            int prevTotalVisited = -1, ticksSinceNewPosition = 0;
+            final int MAX_LOOP_TICKS = 4096;
+            // lets say there's an infinite loop if there's MAX_LOOP_TICKS ticks w/o new positions
+
+            if (!detectInfiniteLoop) {
+                simulate();
+                return;
+            }
+
+            while (guardInBounds() && !probablyLooping) {
+                tick();
+                
+                if (posnsGuardVisited.size() != prevTotalVisited) {
+                    ticksSinceNewPosition = 0;
+                } else {
+                    ticksSinceNewPosition++;
+                }
+
+                prevTotalVisited = posnsGuardVisited.size();
+                probablyLooping = ticksSinceNewPosition >= MAX_LOOP_TICKS;
             }
         }
 
@@ -132,7 +188,26 @@ public class Day6 extends AdventOfCodePuzzle {
         }
 
         public HashSet<Position> getPosnsGuardVisited() {
-            return posnsGuardVisited;
+            return (HashSet<Position>) posnsGuardVisited.clone();
+        }
+
+        public void addObstruction(Position p) {
+            obstructions.add(p);
+            tempObstruction = p;
+        }
+
+        public void resetSimulation() {
+            posnsGuardVisited.clear();
+            guardPosition = startPosition;
+            guardBearing = startBearing;
+
+            if (tempObstruction != null) {
+                obstructions.remove(tempObstruction);
+            }
+        }
+
+        public Position getStartingPosition() {
+            return startPosition;
         }
     }
 }
