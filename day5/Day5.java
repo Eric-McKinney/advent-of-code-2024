@@ -2,6 +2,7 @@ package aoc2024.day5;
 
 import aoc2024.AdventOfCodePuzzle;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class Day5 extends AdventOfCodePuzzle {
@@ -12,7 +13,7 @@ public class Day5 extends AdventOfCodePuzzle {
     @Override
     public String part1(ArrayList<String> inputLines) {
         int middlePageNumSum = 0;
-        HashMap<Boolean,ArrayList<ArrayList<Integer>>> followsRules = createAndApplyRuleSet(inputLines);
+        HashMap<Boolean,ArrayList<ArrayList<Integer>>> followsRules = createAndCheckRuleSet(inputLines);
 
         for (ArrayList<Integer> pageNums : followsRules.get(true)) {
             middlePageNumSum += pageNums.get(pageNums.size() / 2);
@@ -24,12 +25,24 @@ public class Day5 extends AdventOfCodePuzzle {
     @Override
     public String part2(ArrayList<String> inputLines) {
         int middlePageNumSum = 0;
+        RuleSet rs = new RuleSet();
+        HashMap<Boolean,ArrayList<ArrayList<Integer>>> followsRules = createAndCheckRuleSet(inputLines, rs);
+
+        for (ArrayList<Integer> pageNums : followsRules.get(false)) {
+            rs.enforceRules(pageNums);
+            middlePageNumSum += pageNums.get(pageNums.size() / 2);
+        }
 
         return Integer.toString(middlePageNumSum);
     }
 
-    private HashMap<Boolean,ArrayList<ArrayList<Integer>>> createAndApplyRuleSet(ArrayList<String> inputLines) {
+    private HashMap<Boolean,ArrayList<ArrayList<Integer>>> createAndCheckRuleSet(ArrayList<String> inputLines) {
         RuleSet rs = new RuleSet();
+
+        return createAndCheckRuleSet(inputLines, rs);
+    }
+
+    private HashMap<Boolean,ArrayList<ArrayList<Integer>>> createAndCheckRuleSet(ArrayList<String> inputLines, RuleSet rs) {
         HashMap<Boolean,ArrayList<ArrayList<Integer>>> followsRules = new HashMap<>();
 
         followsRules.put(true, new ArrayList<ArrayList<Integer>>());
@@ -53,7 +66,7 @@ public class Day5 extends AdventOfCodePuzzle {
         return followsRules;
     }
 
-    private class RuleSet {
+    private class RuleSet implements Comparator<Integer> {
         private ArrayList<Rule> rules;
 
         public RuleSet() {
@@ -61,7 +74,7 @@ public class Day5 extends AdventOfCodePuzzle {
         }
 
         private class Rule {
-            private int first, second;
+            public int first, second;
 
             public Rule(int first, int second) {
                 this.first = first;
@@ -93,6 +106,23 @@ public class Day5 extends AdventOfCodePuzzle {
             }
 
             return true;
+        }
+
+        public void enforceRules(ArrayList<Integer> pageNumbers) {
+            pageNumbers.sort(this);
+        }
+
+        @Override
+        public int compare(Integer o1, Integer o2) {
+            for (Rule r : rules) {
+                if (r.first == o1 && r.second == o2) {
+                    return -1;
+                } else if (r.first == o2 && r.second == o1) {
+                    return 1;
+                }
+            }
+
+            return 0;
         }
     }
 }
