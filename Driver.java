@@ -5,6 +5,7 @@ import aoc2024.day2.Day2;
 import aoc2024.day3.Day3;
 import aoc2024.day4.Day4;
 import aoc2024.day5.Day5;
+import aoc2024.day6.Day6;
 
 public class Driver {
     public static void main(String[] args) {
@@ -16,6 +17,7 @@ public class Driver {
         puzzles[2] = new Day3();
         puzzles[3] = new Day4();
         puzzles[4] = new Day5();
+        puzzles[5] = new Day6();
 
         System.out.println(separator);
         for (int i = 0; i < puzzles.length && puzzles[i] != null; i++) {
